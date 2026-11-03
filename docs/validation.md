@@ -28,6 +28,7 @@ The UI was refined against central conventions 1.3 and the public Ant Design Pro
 - At 390 × 844, the document width remained 390px. The light navigation drawer, labeled query form and modal save/cancel controls were inspected; a new scenario was saved successfully on the private HTTP preview.
 - Existing API/Mock handlers, job state transitions, report payloads and data isolation were preserved. No dependency or backend change was introduced for the UI refinement.
 - Component test files run serially to avoid competing Ant Design/jsdom style calculations on small CI runners. All behavior assertions and the existing per-test time limits remain enabled.
+- Component queries are scoped to the relevant modal/native button instead of repeatedly computing accessible names for unrelated page controls. The form test verifies actual dialog-node removal and still checks validation, saved content and the API result; recovery retains visible button-role and error/retry assertions.
 
 ## Remaining limitations
 
