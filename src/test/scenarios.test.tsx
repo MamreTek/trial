@@ -4,8 +4,10 @@ import { expect, it } from 'vitest';
 import Scenarios from '../features/scenarios/Scenarios';
 import { api } from '../shared/api/client';
 
+// Avoid preparatory hover work; click validation and all behavior assertions stay enabled.
+
 it('creates a reusable scenario from the form and shows the saved result', async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<Scenarios />);
   await user.click(screen.getByRole('button', { name: /新建场景/ }));
   const dialog = await screen.findByRole('dialog');
@@ -21,15 +23,16 @@ it('creates a reusable scenario from the form and shows the saved result', async
 }, 15000);
 
 it('saves a stability test independently of CPU workload', async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<Scenarios />);
   await user.click(screen.getByRole('button', { name: /新建场景/ }));
   const dialog = await screen.findByRole('dialog'), editor = within(dialog);
-  fireEvent.change(editor.getByRole('textbox', { name: '场景名称' }), { target: { value: 'CPU 稳定性验收' } });
-  await user.click(editor.getByRole('combobox', { name: '测试类型' }));
+  const save = editor.getByRole('button', { name: /保存场景/ });
+  fireEvent.change(editor.getByLabelText('场景名称'), { target: { value: 'CPU 稳定性验收' } });
+  await user.click(editor.getByLabelText('测试类型'));
   await user.click(await screen.findByTitle('稳定性测试'));
   expect(editor.getByTitle('稳定性测试')).toBeVisible();
-  await user.click(editor.getByRole('button', { name: /保存场景/ }));
+  await user.click(save);
   await waitFor(() => expect(dialog).not.toBeInTheDocument());
   expect((await api.scenarios({ q: 'CPU 稳定性验收' })).items[0]).toMatchObject({ testType: 'stability', workload: 'cpu' });
   expect(await screen.findByText('CPU 稳定性验收')).toBeVisible();
@@ -37,7 +40,7 @@ it('saves a stability test independently of CPU workload', async () => {
 
 it('filters test types across workloads and resets the list', async () => {
   await api.saveScenario({ name: 'CPU 稳定性验收', testType: 'stability', workload: 'cpu', tool: 'stress-ng', durationMinutes: 30, concurrency: 64, intensityPercent: 85 });
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<Scenarios />);
   const table = within(screen.getByRole('table'));
   expect(await table.findByText('CPU 基线压力测试')).toBeVisible();

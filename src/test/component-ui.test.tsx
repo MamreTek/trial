@@ -7,8 +7,10 @@ import Scenarios from '../features/scenarios/Scenarios';
 import Jobs from '../features/jobs/Jobs';
 import { api } from '../shared/api/client';
 
+// These cases assert click/form behavior, not hover; keep default pointer checks.
+
 it('queries component models and shows unit-bearing specifications in a detail drawer', async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<MemoryRouter><Components /></MemoryRouter>);
   await user.click(screen.getByRole('tab', { name: '网络' }));
   fireEvent.change(screen.getByRole('searchbox', { name: '搜索部件' }), { target: { value: 'Demo-NIC-25G' } });
@@ -23,7 +25,7 @@ it('queries component models and shows unit-bearing specifications in a detail d
 }, 15000);
 
 it('switches from CPU to memory and saves only the matching tool parameters', async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<Scenarios />);
   const open = screen.getByText('新建场景').closest('button')!;
   expect(open).toHaveRole('button'); expect(open).toBeVisible();
@@ -45,7 +47,7 @@ it('switches from CPU to memory and saves only the matching tool parameters', as
 
 it('edits round termination while retaining the saved memory parameters', async () => {
   await api.saveScenario({ name: '内存轮次参数验收', workload: 'memory', tool: 'stress-ng', durationMinutes: 10, concurrency: 1, intensityPercent: 80, parameters: { memoryMode: 'vm', memoryMiB: 2048 } });
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<Scenarios />);
   fireEvent.change(screen.getByLabelText('搜索场景'), { target: { value: '内存轮次参数验收' } });
   const row = await within(screen.getByRole('table')).findByText('内存轮次参数验收');
@@ -64,7 +66,7 @@ it('edits round termination while retaining the saved memory parameters', async 
 }, 15000);
 
 it('creates a component-specific job from the inventory handoff', async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ skipHover: true });
   render(<MemoryRouter initialEntries={['/jobs?new=1&componentId=cpu-srv-001-0']}><Jobs /></MemoryRouter>);
   const dialog = await screen.findByRole('dialog'), form = within(dialog);
   const name = form.getByRole('textbox', { name: '任务名称' });
