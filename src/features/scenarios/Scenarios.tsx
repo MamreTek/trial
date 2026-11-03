@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Button, Card, Form, Input, InputNumber, Modal, Select, Space, Table, Tag } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { api, ApiError, errorText } from '../../shared/api/client';
 import type { Scenario, ScenarioInput, Workload } from '../../shared/api/contracts';
 import { toolsByWorkload, workloadLabels } from '../../shared/api/contracts';
@@ -33,13 +33,17 @@ export default function Scenarios() {
   const [editor, setEditor] = useState<Scenario | 'new'>();
   const load = useCallback(() => api.scenarios({ q, page, pageSize: 5, sort }), [q, page, sort]);
   const { data, loading, error, refresh } = useResource(load);
-  return <><PageTitle eyebrow="SCENARIOS / 测试定义" title="压测场景" description="把工具、压力与时长封装为可复用的实验方案。" action={<Button type="primary" icon={<PlusOutlined />} onClick={() => setEditor('new')}>新建场景</Button>} />
-    <ErrorNotice error={error} retry={() => void refresh()} /><div className="scenario-guide">{(['cpu', 'http', 'gpu'] as Workload[]).map(w => <div key={w}><Tag color={w === 'gpu' ? 'purple' : w === 'http' ? 'blue' : 'cyan'}>{workloadLabels[w]}</Tag><span>{toolsByWorkload[w].join(' / ')}</span></div>)}</div>
-    <Card><Input.Search aria-label="搜索场景" placeholder="搜索场景名称" allowClear onChange={e => { setQ(e.target.value); setPage(1); }} style={{ width: 260, marginBottom: 20 }} />
+  return <><PageTitle title="压测场景" description="管理 CPU / 内存、HTTP 和 GPU 压测参数，场景可重复用于创建任务。" />
+    <ErrorNotice error={error} retry={() => void refresh()} />
+    <Card className="query-card"><Form layout="inline" className="query-form">
+      <Form.Item label="场景名称"><Input.Search aria-label="搜索场景" placeholder="请输入场景名称" value={q} allowClear onSearch={() => void refresh()} onChange={e => { setQ(e.target.value); setPage(1); }} /></Form.Item>
+      <Form.Item><Button onClick={() => { setQ(''); setPage(1); }}>重置</Button></Form.Item>
+    </Form></Card>
+    <Card title="场景列表" extra={<Space><Button type="primary" icon={<PlusOutlined />} onClick={() => setEditor('new')}>新建场景</Button><Button aria-label="刷新场景" icon={<ReloadOutlined />} onClick={() => void refresh()} /></Space>}>
     <Table<Scenario> rowKey="id" dataSource={data?.items} loading={loading} scroll={{ x: 750 }} pagination={{ current: page, pageSize: 5, total: data?.total ?? 0, showSizeChanger: false }} onChange={(p, _, s) => { setPage(p.current ?? 1); const first = Array.isArray(s) ? s[0] : s; setSort(first.order === 'descend' ? '-name' : 'name'); }} columns={[
       { title: '场景名称', dataIndex: 'name', sorter: true, sortOrder: sort === '-name' ? 'descend' : 'ascend', render: (name, s) => <Button type="link" className="table-link" onClick={() => setEditor(s)}>{name}</Button> },
       { title: '负载 / 工具', render: (_, s) => <div>{workloadLabels[s.workload]}<div className="muted mono">{s.tool}</div></div> },
       { title: '配置时长', render: (_, s) => `${s.durationMinutes} 分钟` }, { title: '并发', dataIndex: 'concurrency' }, { title: '目标压力', render: (_, s) => `${s.intensityPercent}%` },
-      { title: '操作', render: (_, s) => <Button onClick={() => setEditor(s)}>编辑</Button> },
+      { title: '操作', render: (_, s) => <Button type="link" onClick={() => setEditor(s)}>编辑</Button> },
     ]} /></Card>{editor && <ScenarioEditor scenario={editor === 'new' ? undefined : editor} close={() => setEditor(undefined)} saved={() => void refresh()} />}</>;
 }

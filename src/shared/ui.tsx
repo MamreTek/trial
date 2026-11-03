@@ -1,8 +1,8 @@
 import { Alert, Button, Space, Tag, Typography } from 'antd';
 import type { JobStatus } from './api/contracts';
 import { jobLabels } from './api/contracts';
-export function PageTitle({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: React.ReactNode }) {
-  return <div className="page-heading"><div><div className="eyebrow">{eyebrow}</div><Typography.Title level={2}>{title}</Typography.Title><Typography.Text type="secondary">{description}</Typography.Text></div>{action}</div>;
+export function PageTitle({ title, description, action }: { eyebrow?: string; title: string; description: string; action?: React.ReactNode }) {
+  return <div className="page-heading"><div><Typography.Title level={2}>{title}</Typography.Title><Typography.Text type="secondary">{description}</Typography.Text></div>{action}</div>;
 }
 export function ErrorNotice({ error, retry }: { error?: string; retry?: () => void }) {
   return error ? <Alert showIcon type="error" title="请求未完成" description={error} action={retry && <Button size="small" onClick={retry}>重试</Button>} style={{ marginBottom: 20 }} /> : null;

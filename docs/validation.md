@@ -19,6 +19,15 @@ Validation date: 2026-11-03. Runtime: Node 22.22.1. Dependencies are fixed in th
 - Verified the built artifact on both loopback and a specifically selected private HTTP interface. The private-origin browser loaded the seeded data and created/saved a scenario using MSW's supported fetch/XHR fallback. UUID request IDs use getRandomValues so they do not depend on secure-context-only randomUUID. Reachability from a separate phone or another network was not assumed. The preview listeners were retained at the user's request; startup/shutdown instructions are in the README.
 - Clicked report export in the built artifact. The export integration test verifies the JSON MIME type, filename, simulation notice, job identifier and scenario/target snapshots. Browser security policy blocks access to the browser's internal downloads page, so the actual downloaded file's disk location/completion could not be independently confirmed. No policy workaround was attempted.
 
+## Ant Design Pro UI refinement
+
+The UI was refined against central conventions 1.3 and the public Ant Design Pro settings/component documentation. [ui-reference.md](ui-reference.md) records the source, the before/after comparison and the reference preview's login restriction; authenticated reference pages were not verified.
+
+- TypeScript, lint, 19 behavior tests, and both default/Mock-enabled builds passed after the refinement.
+- The revised desktop server query filtered five seeded servers to two GPU names and reset back to five. The query panel, table toolbar, navigation and breadcrumbs were inspected in the browser.
+- At 390 × 844, the document width remained 390px. The light navigation drawer, labeled query form and modal save/cancel controls were inspected; a new scenario was saved successfully on the private HTTP preview.
+- Existing API/Mock handlers, job state transitions, report payloads and data isolation were preserved. No dependency or backend change was introduced for the UI refinement.
+
 ## Remaining limitations
 
 - `npm audit`: 11 moderate development-tool dependency findings, rooted in minimatch globparts amplification ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)); zero high or critical findings. The affected chain is ESLint/typescript-eslint tooling. The audit suggestions include incompatible major downgrades; no forced downgrade or cross-major dependency override was applied.

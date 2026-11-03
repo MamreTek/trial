@@ -40,8 +40,14 @@ export default function Jobs({ reports = false }: { reports?: boolean }) {
   const load = useCallback(() => api.jobs({ q, status: reports ? 'completed' : status, page, pageSize: 5, sort }), [q, status, page, reports, sort]);
   const { data, loading, error, refresh } = useResource(load, 2000);
   async function cancel(id: string) { setCanceling(id); setActionError(''); try { await api.cancelJob(id); await refresh(); } catch (e) { setActionError(errorText(e)); } finally { setCanceling(undefined); } }
-  return <><PageTitle eyebrow={reports ? 'REPORTS / 结果分析' : 'EXPERIMENTS / 压测执行'} title={reports ? '压测报告' : '压测任务'} description={reports ? '回看已完成的模拟实验。所有指标与结论均为示例。' : '跟踪每次实验的配置快照与状态，演示任务约 15 秒完成。'} action={!reports && <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditor(true)}>新建压测任务</Button>} />
-    <ErrorNotice error={error || actionError} retry={() => { setActionError(''); void refresh(); }} /><Card><Space wrap className="filters"><Input.Search aria-label="搜索任务" placeholder="搜索任务名称" allowClear onChange={e => { setQ(e.target.value); setPage(1); }} style={{ width: 260 }} />{!reports && <Select aria-label="任务状态筛选" allowClear placeholder="全部状态" style={{ width: 150 }} value={status} onChange={v => { setStatus(v); setPage(1); }} options={Object.entries(jobLabels).map(([value, label]) => ({ value, label }))} />}<Button icon={<ReloadOutlined />} onClick={() => void refresh()}>刷新</Button></Space>
+  return <><PageTitle title={reports ? '压测报告' : '压测任务'} description={reports ? '查询已完成任务的模拟指标与结果报告。' : '查询任务状态与配置快照，模拟任务约 15 秒完成。'} />
+    <ErrorNotice error={error || actionError} retry={() => { setActionError(''); void refresh(); }} />
+    <Card className="query-card"><Form layout="inline" className="query-form">
+      <Form.Item label="任务名称"><Input.Search aria-label="搜索任务" placeholder="请输入任务名称" value={q} allowClear onSearch={() => void refresh()} onChange={e => { setQ(e.target.value); setPage(1); }} /></Form.Item>
+      {!reports && <Form.Item label="任务状态"><Select aria-label="任务状态筛选" allowClear placeholder="全部状态" value={status} onChange={v => { setStatus(v); setPage(1); }} options={Object.entries(jobLabels).map(([value, label]) => ({ value, label }))} /></Form.Item>}
+      <Form.Item><Button onClick={() => { setQ(''); setStatus(undefined); setPage(1); }}>重置</Button></Form.Item>
+    </Form></Card>
+    <Card title={reports ? '报告列表' : '任务列表'} extra={<Space>{!reports && <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditor(true)}>新建压测任务</Button>}<Button aria-label="刷新任务" icon={<ReloadOutlined />} onClick={() => void refresh()} /></Space>}>
     <Table<Job> rowKey="id" dataSource={data?.items} loading={loading && !data} scroll={{ x: 920 }} pagination={{ current: page, pageSize: 5, total: data?.total ?? 0, showSizeChanger: false }} onChange={(p, _, s) => { setPage(p.current ?? 1); const first = Array.isArray(s) ? s[0] : s; setSort(first.order === 'ascend' ? 'createdAt' : '-createdAt'); }} columns={[
       { title: '任务 / 场景', render: (_, j) => <div><Link to={`/jobs/${j.id}`}>{j.name}</Link><div className="muted">{j.scenario.name} · {j.servers.length} 台目标</div></div> },
       { title: '状态', render: (_, j) => <div><JobTag status={j.status} />{['queued', 'running'].includes(j.status) && <Progress percent={j.progress} size="small" style={{ width: 100 }} />}</div> },

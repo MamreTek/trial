@@ -32,7 +32,7 @@ For an explicitly authorized LAN review, bind only the selected private interfac
 
 Stop a foreground preview with Ctrl+C. For a retained preview, identify its exact listener PID with `ss -ltnp 'sport = :5195'` and stop only that owned preview process with `kill <pid>`. Restart by rebuilding with Mock enabled and running the same preview command. Changes to the build artifact require a browser refresh. Keep this synthetic-data preview off the public Internet.
 
-API contract: [docs/api-contract.md](docs/api-contract.md). Shared TypeScript types, browser/Node MSW handlers and contract tests cover the same endpoints. The central development-conventions snapshot is version 1.2. The canonical REQ-001 PRD stays outside the source repository; its public tracker is [Issue #1](https://github.com/MamreTek/trial/issues/1).
+API contract: [docs/api-contract.md](docs/api-contract.md). Shared TypeScript types, browser/Node MSW handlers and contract tests cover the same endpoints. The central development-conventions snapshot is version 1.3; the UI follows its Ant Design Pro reference requirement. The canonical REQ-001 PRD stays outside the source repository; its public tracker is [Issue #1](https://github.com/MamreTek/trial/issues/1).
 
 ## Deferred
 

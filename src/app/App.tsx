@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button, ConfigProvider, Drawer, Layout, Menu, Select, Space, Tag, Tooltip } from 'antd';
+import { Alert, Breadcrumb, Button, ConfigProvider, Drawer, Layout, Menu, Select, Space, Tag, Tooltip } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AppstoreOutlined, DatabaseOutlined, ExperimentOutlined, FileTextOutlined, MenuOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
@@ -11,17 +11,85 @@ import JobDetail from '../features/jobs/JobDetail';
 import { store } from '../mocks/store';
 
 const items = [
-  { key: '/', icon: <AppstoreOutlined />, label: '工作台' }, { key: '/servers', icon: <DatabaseOutlined />, label: '服务器' },
-  { key: '/scenarios', icon: <ExperimentOutlined />, label: '压测场景' }, { key: '/jobs', icon: <PlayCircleOutlined />, label: '压测任务' }, { key: '/reports', icon: <FileTextOutlined />, label: '压测报告' },
+  { key: '/', icon: <AppstoreOutlined />, label: '工作台' },
+  { key: '/servers', icon: <DatabaseOutlined />, label: '服务器' },
+  { key: '/scenarios', icon: <ExperimentOutlined />, label: '压测场景' },
+  { key: '/jobs', icon: <PlayCircleOutlined />, label: '压测任务' },
+  { key: '/reports', icon: <FileTextOutlined />, label: '压测报告' },
 ];
+
 function Shell() {
-  const location = useLocation(), navigate = useNavigate();
-  const [mobile, setMobile] = useState(false), [mode, setMode] = useState<'normal' | 'empty' | 'fail'>('normal');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [mobile, setMobile] = useState(false);
+  const [mode, setMode] = useState<'normal' | 'empty' | 'fail'>('normal');
   const selected = location.pathname.startsWith('/jobs') ? '/jobs' : location.pathname;
-  function mockMode(value: 'normal' | 'empty' | 'fail') { store.control(value); setMode(value === 'fail' ? 'normal' : value); window.dispatchEvent(new Event('trial:mock-change')); }
-  const navigation = <><Link to="/" className="brand"><span className="brand-glyph">t<span>r</span></span><div>Trial<small>MAMRETEK / PERFORMANCE LAB</small></div></Link><div className="nav-section">实验工作区</div><Menu theme="dark" selectedKeys={[selected]} mode="inline" items={items} onClick={({ key }) => { navigate(key); setMobile(false); }} /><div className="sidebar-footer"><span className="connection-dot" /> 本地模拟环境<p>Prototype v0.1<br />不连接真实基础设施</p></div></>;
-  return <Layout className="app-shell"><Layout.Sider width={232} className="desktop-sidebar">{navigation}</Layout.Sider><Drawer placement="left" open={mobile} onClose={() => setMobile(false)} styles={{ body: { padding: 0, background: '#101827' } }} width={250} title="Trial 导航">{navigation}</Drawer><Layout className="main-layout"><Layout.Header className="topbar"><Space><Button className="mobile-menu" type="text" aria-label="打开导航" icon={<MenuOutlined />} onClick={() => setMobile(true)} /><span className="breadcrumb">MamreTek <span>/</span> Trial</span><Tag color="cyan">产品原型</Tag></Space><Space wrap><span className="mock-label">Mock 演示</span><Select size="small" aria-label="Mock 演示状态" value={mode} onChange={mockMode} style={{ width: 136 }} options={[{ value: 'normal', label: '正常数据' }, { value: 'empty', label: '空数据' }, { value: 'fail', label: '下一次请求失败' }]} /><Tooltip title="重置所有模拟数据"><Button size="small" aria-label="重置模拟数据" icon={<ReloadOutlined />} onClick={() => { store.reset(); setMode('normal'); window.dispatchEvent(new Event('trial:mock-change')); }} /></Tooltip></Space></Layout.Header><Layout.Content className="content"><Alert className="prototype-alert" showIcon type="warning" title="产品原型 / 模拟数据" description="仅验证产品流程，无真实压测、持久化或权限保护。请勿接入生产服务器与生产数据。" /><main><Outlet /></main><footer className="page-footer">TRIAL · MAMRETEK <span>所有执行与结果均为模拟 · 时间统一展示为 UTC</span></footer></Layout.Content></Layout></Layout>;
+  const currentPage = items.find(item => item.key === selected)?.label ?? '工作台';
+  const breadcrumbs = [
+    { title: <Link to="/">Trial</Link> },
+    { title: currentPage },
+    ...(location.pathname.startsWith('/jobs/') ? [{ title: '任务详情' }] : []),
+  ];
+  function mockMode(value: 'normal' | 'empty' | 'fail') {
+    store.control(value);
+    setMode(value === 'fail' ? 'normal' : value);
+    window.dispatchEvent(new Event('trial:mock-change'));
+  }
+  const navigation = <>
+    <div className="nav-section">性能测试</div>
+    <Menu selectedKeys={[selected]} mode="inline" items={items} onClick={({ key }) => { navigate(key); setMobile(false); }} />
+    <div className="sidebar-footer"><Tag>Mock 环境</Tag><p>不连接真实服务器</p></div>
+  </>;
+
+  return <Layout className="app-shell">
+    <Layout.Header className="topbar">
+      <Space size={12}>
+        <Button className="mobile-menu" type="text" aria-label="打开导航" icon={<MenuOutlined />} onClick={() => setMobile(true)} />
+        <Link to="/" className="app-brand"><ExperimentOutlined /><span>Trial</span></Link>
+        <span className="product-name">服务器压测平台</span>
+        <Tag color="blue">产品原型</Tag>
+      </Space>
+      <Space className="preview-controls">
+        <span className="mock-label">模拟数据</span>
+        <Select size="small" aria-label="Mock 演示状态" value={mode} onChange={mockMode} style={{ width: 136 }} options={[
+          { value: 'normal', label: '正常数据' }, { value: 'empty', label: '空数据' }, { value: 'fail', label: '下一次请求失败' },
+        ]} />
+        <Tooltip title="重置所有模拟数据"><Button size="small" aria-label="重置模拟数据" icon={<ReloadOutlined />} onClick={() => {
+          store.reset(); setMode('normal'); window.dispatchEvent(new Event('trial:mock-change'));
+        }} /></Tooltip>
+      </Space>
+    </Layout.Header>
+    <Layout.Sider width={216} theme="light" className="desktop-sidebar">{navigation}</Layout.Sider>
+    <Drawer placement="left" open={mobile} onClose={() => setMobile(false)} styles={{ body: { padding: 0 } }} width={240} title="Trial 导航">{navigation}</Drawer>
+    <Layout className="main-layout">
+      <Layout.Content className="content">
+        <Breadcrumb className="page-breadcrumb" items={breadcrumbs} />
+        <Alert className="prototype-alert" showIcon type="warning" title="产品原型 / 模拟数据：无真实压测、持久化及权限保护，请勿接入生产服务器或生产数据。" />
+        <main><Outlet /></main>
+        <footer className="page-footer"><span>MamreTek · Trial</span><span>模拟数据 · UTC 时间</span></footer>
+      </Layout.Content>
+    </Layout>
+  </Layout>;
 }
+
 export default function App() {
-  return <ConfigProvider locale={zhCN} theme={{ token: { colorPrimary: '#078f80', borderRadius: 8, fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif', colorText: '#213247', colorBgLayout: '#f4f7fa' }, components: { Layout: { siderBg: '#101827' }, Menu: { darkItemBg: '#101827', darkItemSelectedBg: '#183b3c', darkItemSelectedColor: '#5ce0c7' }, Table: { headerBg: '#f8fafb' } } }}><BrowserRouter><Routes><Route element={<Shell />}><Route index element={<Dashboard />} /><Route path="servers" element={<Servers />} /><Route path="scenarios" element={<Scenarios />} /><Route path="jobs" element={<Jobs />} /><Route path="jobs/:id" element={<JobDetail />} /><Route path="reports" element={<Jobs key="reports" reports />} /><Route path="*" element={<Navigate to="/" replace />} /></Route></Routes></BrowserRouter></ConfigProvider>;
+  return <ConfigProvider locale={zhCN} theme={{
+    token: { colorPrimary: '#1890ff', borderRadius: 6, colorBgLayout: '#f5f5f5' },
+    components: {
+      Layout: { headerBg: '#fff', siderBg: '#fff' },
+      Menu: { itemSelectedBg: '#e6f4ff', itemSelectedColor: '#1890ff' },
+      Table: { headerBg: '#fafafa', cellPaddingBlock: 12, cellPaddingInline: 16 },
+      Card: { headerFontSize: 16 },
+    },
+  }}>
+    <BrowserRouter><Routes><Route element={<Shell />}>
+      <Route index element={<Dashboard />} />
+      <Route path="servers" element={<Servers />} />
+      <Route path="scenarios" element={<Scenarios />} />
+      <Route path="jobs" element={<Jobs />} />
+      <Route path="jobs/:id" element={<JobDetail />} />
+      <Route path="reports" element={<Jobs key="reports" reports />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Route></Routes></BrowserRouter>
+  </ConfigProvider>;
 }
