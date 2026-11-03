@@ -27,6 +27,7 @@ The UI was refined against central conventions 1.3 and the public Ant Design Pro
 - The revised desktop server query filtered five seeded servers to two GPU names and reset back to five. The query panel, table toolbar, navigation and breadcrumbs were inspected in the browser.
 - At 390 × 844, the document width remained 390px. The light navigation drawer, labeled query form and modal save/cancel controls were inspected; a new scenario was saved successfully on the private HTTP preview.
 - Existing API/Mock handlers, job state transitions, report payloads and data isolation were preserved. No dependency or backend change was introduced for the UI refinement.
+- Component test files run serially to avoid competing Ant Design/jsdom style calculations on small CI runners. All behavior assertions and the existing per-test time limits remain enabled.
 
 ## Remaining limitations
 
