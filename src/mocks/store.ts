@@ -1,5 +1,5 @@
 import type { Job, JobInput, Report, Scenario, ScenarioInput, Server } from '../shared/api/contracts';
-import { toolsByWorkload } from '../shared/api/contracts';
+import { testTypeLabels, toolsByWorkload } from '../shared/api/contracts';
 
 export class ContractError extends Error {
   constructor(public status: number, public code: string, message: string, public fieldErrors?: Record<string, string>) { super(message); }
@@ -13,23 +13,25 @@ const serverSeed: Server[] = [
   { id: 'srv-005', name: 'lab-gpu-02', brand: 'Lenovo', model: 'ThinkSystem SR670 V2', address: '192.0.2.32', status: 'online', cpu: 'AMD EPYC 7543', cores: 64, memoryGiB: 512, gpu: 'NVIDIA A40 48GB', gpuCount: 2, location: '模拟实验室 A · 机架 03' },
 ];
 const scenarioSeed: Scenario[] = [
-  { id: 'scn-001', name: 'CPU 基线压力测试', workload: 'cpu', tool: 'stress-ng', durationMinutes: 30, concurrency: 64, intensityPercent: 85, updatedAt: '2026-11-03T07:00:00Z' },
-  { id: 'scn-002', name: 'HTTP 峰值负载测试', workload: 'http', tool: 'Locust', durationMinutes: 15, concurrency: 500, intensityPercent: 75, updatedAt: '2026-11-03T07:05:00Z' },
-  { id: 'scn-003', name: 'GPU 长稳测试', workload: 'gpu', tool: 'gpu-burn', durationMinutes: 120, concurrency: 4, intensityPercent: 95, updatedAt: '2026-11-03T07:10:00Z' },
+  { id: 'scn-001', name: 'CPU 基线压力测试', testType: 'stress', workload: 'cpu', tool: 'stress-ng', durationMinutes: 30, concurrency: 64, intensityPercent: 85, updatedAt: '2026-11-03T07:00:00Z' },
+  { id: 'scn-002', name: 'HTTP 峰值负载测试', testType: 'load', workload: 'http', tool: 'Locust', durationMinutes: 15, concurrency: 500, intensityPercent: 75, updatedAt: '2026-11-03T07:05:00Z' },
+  { id: 'scn-003', name: 'GPU 长稳测试', testType: 'stability', workload: 'gpu', tool: 'gpu-burn', durationMinutes: 120, concurrency: 4, intensityPercent: 95, updatedAt: '2026-11-03T07:10:00Z' },
 ];
-export function validateScenario(input: unknown): ScenarioInput {
+export function validateScenario(input: unknown): Required<ScenarioInput> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return fail(400, 'VALIDATION_ERROR', '场景必须是对象');
   const p = input as Record<string, unknown>;
   const errors: Record<string, string> = {};
   const name = typeof p.name === 'string' ? p.name.trim() : '';
   if (name.length < 2 || name.length > 60) errors.name = '名称需为 2–60 个字符';
+  const testType = p.testType === undefined ? 'stress' : p.testType;
+  if (typeof testType !== 'string' || !Object.hasOwn(testTypeLabels, testType)) errors.testType = '请选择压力、负载或稳定性测试';
   if (typeof p.workload !== 'string' || !Object.hasOwn(toolsByWorkload, p.workload)) errors.workload = '请选择有效的负载类型';
   else if (!toolsByWorkload[p.workload as ScenarioInput['workload']].includes(p.tool as ScenarioInput['tool'])) errors.tool = '工具与负载类型不兼容';
   for (const [field, min, max] of [['durationMinutes', 1, 1440], ['concurrency', 1, 10000], ['intensityPercent', 1, 100]] as const) {
     if (typeof p[field] !== 'number' || !Number.isInteger(p[field]) || p[field] < min || p[field] > max) errors[field] = `必须为 ${min}–${max} 的整数`;
   }
   if (Object.keys(errors).length) throw new ContractError(400, 'VALIDATION_ERROR', '请检查场景参数', errors);
-  return { name, workload: p.workload, tool: p.tool, durationMinutes: p.durationMinutes, concurrency: p.concurrency, intensityPercent: p.intensityPercent } as ScenarioInput;
+  return { name, testType, workload: p.workload, tool: p.tool, durationMinutes: p.durationMinutes, concurrency: p.concurrency, intensityPercent: p.intensityPercent } as Required<ScenarioInput>;
 }
 export function createStore(now: () => number = Date.now) {
   let servers: Server[], scenarios: Scenario[], jobs: Job[], nextId: number;

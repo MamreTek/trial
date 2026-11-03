@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Link, useParams } from 'react-router-dom';
 import { api, errorText } from '../../shared/api/client';
 import type { Report, Sample } from '../../shared/api/contracts';
-import { workloadLabels } from '../../shared/api/contracts';
+import { testTypeLabels, workloadLabels } from '../../shared/api/contracts';
 import { useResource } from '../../shared/useResource';
 import { ErrorNotice, JobTag, PageTitle, utc } from '../../shared/ui';
 
@@ -26,6 +26,10 @@ function ReportView({ id }: { id: string }) {
   return <div className="report-section"><ErrorNotice error={error || exportError} retry={() => void refresh()} />
     <Card loading={loading} title="结果报告" extra={data && <Button icon={<DownloadOutlined />} onClick={() => download(data)}>导出模拟报告</Button>}>{data && <>
       <Alert type="info" showIcon title="示例通过 · 模拟结果" description="这里的指标、曲线和结论均由 Mock 生成，不代表目标服务器的真实性能或质量。" style={{ marginBottom: 24 }} />
+      <Descriptions size="small" column={{ xs: 1, sm: 2 }} items={[
+        { key: 'type', label: '测试类型', children: testTypeLabels[data.scenario.testType] },
+        { key: 'workload', label: '负载类型', children: workloadLabels[data.scenario.workload] },
+      ]} style={{ marginBottom: 16 }} />
       <Row gutter={[20, 20]}>{data.metrics.map(m => <Col xs={24} sm={8} key={m.label}><Statistic title={m.label} value={m.value} suffix={m.unit} /></Col>)}</Row>
       <h4 className="chart-title">{data.series.label}趋势 <span className="muted">/ 模拟采样</span></h4><Curve {...data.series} />
       <details><summary>查看可访问的采样数据</summary><Table rowKey="second" size="small" pagination={false} dataSource={data.series.samples} columns={[{ title: '模拟时间（秒）', dataIndex: 'second' }, { title: `${data.series.label}（${data.series.unit}）`, dataIndex: 'value' }]} /></details>
@@ -41,6 +45,7 @@ export default function JobDetail() {
     <ErrorNotice error={error} retry={() => void refresh()} /><Card loading={loading && !data} title="任务配置快照">{data && <><Descriptions column={{ xs: 1, md: 2 }} items={[
       { key: 'id', label: '任务标识', children: data.id }, { key: 'time', label: '创建时间', children: utc(data.createdAt) },
       { key: 'scene', label: '场景 / 工具', children: `${data.scenario.name} / ${data.scenario.tool}` }, { key: 'workload', label: '负载类型', children: workloadLabels[data.scenario.workload] },
+      { key: 'type', label: '测试类型', children: testTypeLabels[data.scenario.testType] },
       { key: 'duration', label: '配置时长', children: `${data.scenario.durationMinutes} 分钟（演示约 15 秒）` }, { key: 'params', label: '压力 / 并发', children: `${data.scenario.intensityPercent}% / ${data.scenario.concurrency}` },
       { key: 'targets', label: '目标服务器', children: data.servers.map(s => s.name).join('、'), span: 2 },
     ]} /><Space className="job-progress"><span>模拟进度</span><Progress percent={data.progress} status={data.status === 'canceled' ? 'exception' : data.status === 'completed' ? 'success' : 'active'} /></Space></>}</Card>

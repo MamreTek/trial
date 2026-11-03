@@ -23,11 +23,23 @@ describe('API contract through the same HTTP handlers used in the browser', () =
   it('validates scenario fields and preserves the contract error structure', async () => {
     try { await api.saveScenario({ name: 'a', workload: 'cpu', tool: 'stress-ng', durationMinutes: 0, concurrency: 1, intensityPercent: 90 }); throw new Error('unexpected success'); }
     catch (e) { expect(e).toBeInstanceOf(ApiError); const error = e as ApiError; expect(error.status).toBe(400); expect(error.details.requestId).toBeTruthy(); expect(error.details.error.fieldErrors).toHaveProperty('durationMinutes'); }
+    const response = await fetch(new URL('/api/v1/scenarios', window.location.origin), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: '无效类型', testType: 'unknown', workload: 'cpu', tool: 'stress-ng', durationMinutes: 10, concurrency: 1, intensityPercent: 90 }) });
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ error: { fieldErrors: { testType: '请选择压力、负载或稳定性测试' } } });
+  });
+  it('filters test types before pagination and accepts legacy scenario requests', async () => {
+    const legacy = await api.saveScenario({ name: '旧客户端场景', workload: 'cpu', tool: 'stress-ng', durationMinutes: 10, concurrency: 1, intensityPercent: 90 });
+    expect(legacy.testType).toBe('stress');
+    const page = await api.scenarios({ testType: 'stability', q: 'GPU', pageSize: 1 });
+    expect(page).toMatchObject({ total: 1, page: 1, pageSize: 1 });
+    expect(page.items[0]).toMatchObject({ id: 'scn-003', testType: 'stability', workload: 'gpu' });
+    await expect(api.scenarios({ testType: 'unknown' })).rejects.toMatchObject({ status: 400 });
   });
   it('creates a scenario and job, exposes snapshots, then enforces cancellation conflicts', async () => {
-    const scenario = await api.saveScenario({ name: 'API 验收场景', workload: 'gpu', tool: 'gpu-burn', durationMinutes: 30, concurrency: 2, intensityPercent: 95 });
+    const scenario = await api.saveScenario({ name: 'API 验收场景', testType: 'stability', workload: 'gpu', tool: 'gpu-burn', durationMinutes: 30, concurrency: 2, intensityPercent: 95 });
     const job = await api.createJob({ name: 'API 验收任务', scenarioId: scenario.id, serverIds: ['srv-002'] });
-    expect(await api.job(job.id)).toMatchObject({ scenario: { id: scenario.id }, status: 'queued' });
+    await api.saveScenario({ ...scenario, testType: 'load' }, scenario.id);
+    expect(await api.job(job.id)).toMatchObject({ scenario: { id: scenario.id, testType: 'stability' }, status: 'queued' });
     await expect(api.report(job.id)).rejects.toMatchObject({ status: 409 });
     expect((await api.cancelJob(job.id)).status).toBe('canceled');
     await expect(api.cancelJob(job.id)).rejects.toMatchObject({ status: 409 });

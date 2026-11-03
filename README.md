@@ -17,6 +17,8 @@ Open the printed localhost URL (default `http://127.0.0.1:5195`). MSW uses a Ser
 
 Review flow: inspect servers → create a CPU, HTTP or GPU scenario → create a compatible simulated job → wait around 15 seconds or cancel it → view/export the completed simulated report. Configured test duration is metadata and is distinct from accelerated demo time. Data is held in browser memory and does not persist.
 
+Scenarios separately configure test intent (stress, load or stability) and workload (CPU/memory, HTTP or GPU). Filter the scenario list by test type; job summaries, immutable snapshots, reports and exported JSON preserve the selected type. Legacy API writes without `testType` remain accepted and default to stress. These are prototype plan fields, not implemented tool-execution strategies.
+
 ## Checks
 
 ```sh

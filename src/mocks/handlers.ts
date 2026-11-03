@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
 import type { Page } from '../shared/api/contracts';
+import { testTypeLabels } from '../shared/api/contracts';
 import { ContractError, store } from './store';
 
 function page<T extends { id: string; name: string }>(items: T[], url: URL, allowedSort: string[]): Page<T> {
@@ -36,7 +37,11 @@ export const handlers = [
     return page(store.servers().filter(s => (!brand || s.brand === brand) && (!status || s.status === status)), url, ['name', '-name']);
   })),
   http.get('*/api/v1/servers/:id', ({ params }) => handle(() => store.getServer(String(params.id)))),
-  http.get('*/api/v1/scenarios', ({ request }) => handle(() => page(store.scenarios(), new URL(request.url), ['name', '-name', 'updatedAt', '-updatedAt']))),
+  http.get('*/api/v1/scenarios', ({ request }) => handle(() => {
+    const url = new URL(request.url), testType = url.searchParams.get('testType');
+    if (testType && !Object.hasOwn(testTypeLabels, testType)) throw new ContractError(400, 'VALIDATION_ERROR', '测试类型筛选无效');
+    return page(store.scenarios().filter(s => !testType || s.testType === testType), url, ['name', '-name', 'updatedAt', '-updatedAt']);
+  })),
   http.get('*/api/v1/scenarios/:id', ({ params }) => handle(() => store.getScenario(String(params.id)))),
   http.post('*/api/v1/scenarios', ({ request }) => handle(async () => store.saveScenario(await body(request)), 201)),
   http.patch('*/api/v1/scenarios/:id', ({ request, params }) => handle(async () => store.saveScenario(await body(request), String(params.id)))),
