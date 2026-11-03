@@ -7,7 +7,7 @@ Validation date: 2026-11-03. Runtime: Node 22.22.1. Dependencies are fixed in th
 - `npm exec --yes --package=npm@10 -- npm ci`: passed.
 - `npm run typecheck`: passed.
 - `npm run lint`: passed without warnings.
-- `npm test -- --run`: 27 tests across 5 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation, HTTP envelopes/status codes, filtering/pagination, private-HTTP request identifiers, service recovery, form submission and report export payloads.
+- `npm test -- --run`: 28 tests across 5 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation, HTTP envelopes/status codes, filtering/pagination, private-HTTP request identifiers, service recovery, form submission and report export payloads.
 - `npm run build`: passed with Mock disabled; this intentionally produces an explanatory screen and does not connect to any backend.
 - `VITE_ENABLE_MOCK=true npm run build`: passed; this is the artifact used for local browser review.
 
@@ -33,7 +33,8 @@ The UI was refined against central conventions 1.3 and the public Ant Design Pro
 ## Independent test-type refinement
 
 - Scenarios now model stress/load/stability independently of CPU/HTTP/GPU workloads. Tests cover all three types, legacy writes defaulting to stress, rejection of invalid types, type filtering before pagination, and unchanged job/report snapshots after editing the source scenario.
-- The form regression selects stability for a CPU scenario, saves it, verifies the normalized API result, filters the table to stability, and resets it. Report-export assertions include the stored test type. All 27 tests, TypeScript and lint passed; test assertions and time limits were retained.
+- The form regression selects stability for a CPU scenario, saves it, verifies its visible result and normalized API data. A separate regression filters stability scenarios across CPU/GPU workloads and resets the list. Report-export assertions include the stored test type. The initial combined UI sequence passed locally but exceeded its 15-second limit in CI; save and filtering are now independent test cases, retaining all assertions and the same per-test limit.
+- All 28 tests, TypeScript and lint passed locally after that split. Default/Mock application build inputs were unchanged by the test-only adjustment.
 - Both default and explicitly Mock-enabled builds passed. No dependency or real execution change was introduced.
 - Loopback and the selected private-interface preview listeners were restarted after the environment interruption. Both returned HTTP 200, with no wildcard/public binding or firewall change. Startup and shutdown commands remain in the README.
 - Current browser discovery returned no enabled browser (`browsers: []`). The new selection → job → report browser walkthrough and refreshed 390px viewport check could not be repeated. The earlier browser checks above apply to the preceding prototype; component/API tests do not constitute new browser or physical-phone acceptance.
