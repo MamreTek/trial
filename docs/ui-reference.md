@@ -24,6 +24,8 @@ The performance report retains its chart and accessible sample table because tim
 
 The later component/template expansion uses the same shell, labeled query panels, table toolbars and native forms. The longer template modal scrolls its body while keeping its actions reachable; component results retain tables and unit-bearing specifications. These are business additions, not a new visual direction. Current browser availability and actual verification are recorded separately in validation.md; no unobserved mobile or reference-page parity is claimed.
 
+The inventory's CPU, memory, disk, network and GPU categories use native Ant Design tabs with their own standard query/table content. Columns show the selected type's specifications and metrics rather than mixing unrelated fields. This follows the user's explicit presentation correction and retains the existing neutral panels, blue selected state, typography and responsive table scrolling.
+
 ## Verification scope
 
 TypeScript, lint, existing behavior tests and both default/Mock builds are rerun for this change. Browser review covers desktop filtering/reset, scene creation/editing, job/report navigation, mobile navigation/query form/modal layout and the existing loopback/private preview addresses. Results and remaining general limitations are recorded in [validation.md](validation.md).

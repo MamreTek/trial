@@ -10,6 +10,7 @@ import { api } from '../shared/api/client';
 it('queries component models and shows unit-bearing specifications in a detail drawer', async () => {
   const user = userEvent.setup();
   render(<MemoryRouter><Components /></MemoryRouter>);
+  await user.click(screen.getByRole('tab', { name: '网络' }));
   fireEvent.change(screen.getByRole('searchbox', { name: '搜索部件' }), { target: { value: 'Demo-NIC-25G' } });
   const table = within(screen.getByRole('table'));
   const target = await table.findByText('lab-dell-01 / NETWORK 0');

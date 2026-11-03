@@ -7,7 +7,7 @@ Validation date: 2026-11-03. Runtime: Node 22.22.1. Dependencies are fixed in th
 - `npm exec --yes --package=npm@10 -- npm ci`: passed.
 - `npm run typecheck`: passed.
 - `npm run lint`: passed without warnings.
-- `npm test -- --run`: 52 tests across 7 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation/failure, HTTP envelopes/status codes, component filtering/pagination/capacity, private-HTTP request identifiers, service recovery, parameter/termination forms and report export payloads.
+- `npm test -- --run`: 59 tests across 8 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation/failure, HTTP envelopes/status codes, component filtering/pagination/capacity, per-type tab columns, keyboard navigation/query isolation, private-HTTP request identifiers, service recovery, parameter/termination forms and report export payloads.
 - `npm run build`: passed with Mock disabled; this intentionally produces an explanatory screen and does not connect to any backend.
 - `VITE_ENABLE_MOCK=true npm run build`: passed; this is the artifact used for local browser review.
 
@@ -48,6 +48,14 @@ The UI was refined against central conventions 1.3 and the public Ant Design Pro
 - Failure/timeout harness outcomes affect one next successfully created job, remain terminal, and cannot produce a success report or be canceled again. Existing status, HTTP and backward-compatibility checks still pass.
 - UI tests cover model search and drawer specifications, switching CPU to memory without leaking old parameter keys, editing rounds while retaining memory parameters, and creating a component-specific job from the inventory handoff. Role/label queries are scoped to relevant controls; original assertions and 15-second case limits remain enabled. The full local suite passed in about 69 seconds.
 - Current browser discovery again returned no enabled browsers. Desktop/mobile visual review and a physical-phone walkthrough remain unverified for this expansion. Component/API checks are not browser acceptance; the earlier screenshots belong to the preceding prototype.
+
+## Component type tabs
+
+- The inventory defaults to CPU and presents separate CPU/memory/disk/network/GPU tabs. Each active table queries the existing kind filter and shows only its own specification/metric columns with units, plus manufacturer/model. Previous-type rows are filtered out immediately during asynchronous tab changes.
+- Seven added cases cover all five type-specific tables, one active table at a time, keyboard focus/selection and panel association, and independent query restoration. The existing network detail test now opens the network tab before its search; detail and task handoff checks remain intact. Native positional announcements for focused tabs are preserved.
+- TypeScript, lint and the complete 59-test suite passed locally (about 105 seconds). Existing assertions and 15-second case limits were retained. Queries inside waits use the relevant cached table to avoid repeated unrelated accessibility/style calculations.
+- API routes, schemas, Mock fixtures, template/parameter/report behavior and dependencies did not change. Presentation documentation was updated; the API contract requires no revision. The applicable central convention snapshot and project record were synchronized to 1.4, and the snapshot matches its canonical contents.
+- Current browser discovery returned apps:[] and browsers:[]. The tab layout and phone viewport were not manually browser-verified; semantic/component checks do not constitute visual or physical-device acceptance. Native tab navigation and table overflow handling are retained.
 
 ## Remaining limitations
 

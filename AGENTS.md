@@ -1,6 +1,6 @@
 # Trial development
 
-Read the central Mamre development standards before work when available. The portable fallback is `docs/development-conventions.md`, version 1.3. Explicit user instructions and project decisions take precedence.
+Read the central Mamre development standards before work when available. The portable fallback is `docs/development-conventions.md`, version 1.4. Explicit user instructions and project decisions take precedence.
 
 Trial is currently a React + TypeScript + Ant Design product prototype with synthetic data. Keep all API access in the shared client and keep the contract, Mock handlers and documentation consistent. Do not add real execution, production data or permissions in this phase.
 

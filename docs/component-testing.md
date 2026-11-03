@@ -4,6 +4,8 @@ This is an independently implemented Mock prototype. It contains metadata about 
 
 ## Component and tool resources
 
+The inventory UI presents CPU, memory, disk, network and GPU in independent Ant Design tabs, defaulting to CPU. Each tab has type-specific specifications/metric columns and retains its own search, manufacturer/server filters, sort and page. Reset affects only the current tab. Native tab keyboard navigation and panel associations are preserved. Wide tables scroll inside their container. Existing `kind` query filtering supplies each tab, so this presentation change does not alter the API contract or Mock data.
+
 `GET /api/v1/components` returns normal Page fields plus `facets.manufacturers[]` and `facets.servers[{id,name}]` for the full unfiltered inventory. `q` searches component name/manufacturer/model/slot. Filters are `kind=cpu|memory|disk|network|gpu`, exact manufacturer and serverId; unsupported kind returns 400, unmatched string filters return an empty list. Sort supports name/manufacturer/model and their descending variants. `GET /components/:id` returns 404 for unknown IDs.
 
 HardwareComponent contains id/name/kind, serverId/serverName, manufacturer/model/slot/status, simulated=true, specs[{label,value,unit?}], supportedTools, optional unavailableReason and synthetic sampleMetrics[{label,value,unit}]. Capacity metadata uses memoryMiB/diskGiB/linkMbps and optional gpuApi=cuda|rocm. Samples describe an illustrative profile, not the latest task: stream for memory, 4 KiB random read for disk and single-flow TCP for network. The unit strings are explicit.
