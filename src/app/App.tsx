@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Breadcrumb, Button, ConfigProvider, Drawer, Layout, Menu, Select, Space, Tag, Tooltip } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AppstoreOutlined, DatabaseOutlined, ExperimentOutlined, FileTextOutlined, MenuOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -8,12 +8,17 @@ import Servers from '../features/servers/Servers';
 import Scenarios from '../features/scenarios/Scenarios';
 import Jobs from '../features/jobs/Jobs';
 import JobDetail from '../features/jobs/JobDetail';
+import Components from '../features/components/Components';
+import Tools from '../features/components/Tools';
+import type { MockMode } from '../shared/api/contracts';
 import { store } from '../mocks/store';
 
 const items = [
   { key: '/', icon: <AppstoreOutlined />, label: '工作台' },
   { key: '/servers', icon: <DatabaseOutlined />, label: '服务器' },
-  { key: '/scenarios', icon: <ExperimentOutlined />, label: '压测场景' },
+  { key: '/components', icon: <DatabaseOutlined />, label: '部件清单' },
+  { key: '/scenarios', icon: <ExperimentOutlined />, label: '场景与模板' },
+  { key: '/tools', icon: <ExperimentOutlined />, label: '工具目录' },
   { key: '/jobs', icon: <PlayCircleOutlined />, label: '压测任务' },
   { key: '/reports', icon: <FileTextOutlined />, label: '压测报告' },
 ];
@@ -22,7 +27,12 @@ function Shell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
-  const [mode, setMode] = useState<'normal' | 'empty' | 'fail'>('normal');
+  const [mode, setMode] = useState<MockMode>('normal');
+  useEffect(() => {
+    const created = () => setMode('normal');
+    window.addEventListener('trial:mock-job-created', created);
+    return () => window.removeEventListener('trial:mock-job-created', created);
+  }, []);
   const selected = location.pathname.startsWith('/jobs') ? '/jobs' : location.pathname;
   const currentPage = items.find(item => item.key === selected)?.label ?? '工作台';
   const breadcrumbs = [
@@ -30,7 +40,7 @@ function Shell() {
     { title: currentPage },
     ...(location.pathname.startsWith('/jobs/') ? [{ title: '任务详情' }] : []),
   ];
-  function mockMode(value: 'normal' | 'empty' | 'fail') {
+  function mockMode(value: MockMode) {
     store.control(value);
     setMode(value === 'fail' ? 'normal' : value);
     window.dispatchEvent(new Event('trial:mock-change'));
@@ -53,6 +63,7 @@ function Shell() {
         <span className="mock-label">模拟数据</span>
         <Select size="small" aria-label="Mock 演示状态" value={mode} onChange={mockMode} style={{ width: 136 }} options={[
           { value: 'normal', label: '正常数据' }, { value: 'empty', label: '空数据' }, { value: 'fail', label: '下一次请求失败' },
+          { value: 'tool-error', label: '下个任务工具失败' }, { value: 'timeout', label: '下个任务超时' },
         ]} />
         <Tooltip title="重置所有模拟数据"><Button size="small" aria-label="重置模拟数据" icon={<ReloadOutlined />} onClick={() => {
           store.reset(); setMode('normal'); window.dispatchEvent(new Event('trial:mock-change'));
@@ -85,6 +96,8 @@ export default function App() {
     <BrowserRouter><Routes><Route element={<Shell />}>
       <Route index element={<Dashboard />} />
       <Route path="servers" element={<Servers />} />
+      <Route path="components" element={<Components />} />
+      <Route path="tools" element={<Tools />} />
       <Route path="scenarios" element={<Scenarios />} />
       <Route path="jobs" element={<Jobs />} />
       <Route path="jobs/:id" element={<JobDetail />} />

@@ -30,7 +30,9 @@ it('exports a labeled JSON report matching the displayed completed job', async (
     expect(JSON.parse(text)).toMatchObject({
       jobId: 'job-001', simulated: true, workload: 'cpu',
       notice: '产品原型 / 模拟数据，不可用于真实硬件评估',
-      scenario: { id: 'scn-001', testType: 'stress' }, servers: [{ id: 'srv-001' }],
+      scenario: { id: 'scn-001', testType: 'stress', parameters: { cpuMethod: 'all' }, termination: { mode: 'duration' } }, servers: [{ id: 'srv-001' }],
+      completedRounds: 0, componentResults: [{ component: { id: 'cpu-srv-001-0', manufacturer: 'Intel' } }],
     });
+    expect(JSON.parse(text).scenario.toolVersion).toMatch(/^source@[a-f0-9]{40}$/);
   } finally { vi.useRealTimers(); vi.unstubAllGlobals(); }
 }, 15000);

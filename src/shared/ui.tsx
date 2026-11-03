@@ -8,7 +8,7 @@ export function ErrorNotice({ error, retry }: { error?: string; retry?: () => vo
   return error ? <Alert showIcon type="error" title="请求未完成" description={error} action={retry && <Button size="small" onClick={retry}>重试</Button>} style={{ marginBottom: 20 }} /> : null;
 }
 export function JobTag({ status }: { status: JobStatus }) {
-  return <Tag color={{ queued: 'gold', running: 'processing', completed: 'success', canceled: 'default' }[status]}>{jobLabels[status]}</Tag>;
+  return <Tag color={{ queued: 'gold', running: 'processing', completed: 'success', canceled: 'default', failed: 'error' }[status]}>{jobLabels[status]}</Tag>;
 }
 export function utc(value: string) { return `${new Date(value).toISOString().replace('T', ' ').slice(0, 19)} UTC`; }
 export function Meta({ items }: { items: string[] }) { return <Space wrap split={<span className="dot">·</span>}>{items.map(i => <span className="muted" key={i}>{i}</span>)}</Space>; }

@@ -17,7 +17,7 @@ export default function Dashboard() {
   const { data, loading, error, refresh } = useResource(load, 3000);
   const items = [
     ['服务器总数', data?.servers.total ?? 0, `${data?.servers.items.filter(s => s.status === 'online').length ?? 0} 台模拟在线`],
-    ['压测场景', data?.scenarios.total ?? 0, 'CPU / 内存、HTTP、GPU'],
+    ['压测模板', data?.scenarios.total ?? 0, 'CPU、内存、磁盘、网卡、GPU / HTTP'],
     ['进行中任务', data?.jobs.items.filter(j => ['running', 'queued'].includes(j.status)).length ?? 0, '模拟任务约 15 秒完成'],
     ['已完成任务', data?.jobs.items.filter(j => j.status === 'completed').length ?? 0, '可查看模拟报告'],
   ] as const;
@@ -38,7 +38,8 @@ export default function Dashboard() {
       </Card></Col>
       <Col xs={24} xl={6}><Card title="操作指引">{[
         ['服务器', '查看硬件配置与模拟在线状态', '/servers'],
-        ['压测场景', '配置工具、压力与持续时间', '/scenarios'],
+        ['部件清单', '按类型查询型号、规格与模拟指标', '/components'],
+        ['场景与模板', '配置工具、参数、轮数与终止策略', '/scenarios'],
         ['压测任务', '创建任务、取消运行与查看报告', '/jobs'],
       ].map(([title, description, path]) => <Link to={path} className="quick-link" key={path}><strong>{title}</strong><p>{description}</p></Link>)}</Card></Col>
     </Row>

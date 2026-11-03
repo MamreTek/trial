@@ -1,4 +1,4 @@
-import type { Envelope, Failure, Job, JobInput, ListQuery, Page, Report, Scenario, ScenarioInput, Server } from './contracts';
+import type { ComponentPage, Envelope, Failure, HardwareComponent, Job, JobInput, ListQuery, Page, Report, Scenario, ScenarioInput, Server, ToolDefinition } from './contracts';
 export class ApiError extends Error {
   constructor(public status: number, public details: Failure) { super(details.error.message); }
 }
@@ -14,6 +14,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 function query(q: ListQuery = {}) { const params = new URLSearchParams(); Object.entries(q).forEach(([k, v]) => { if (v !== undefined && v !== '') params.set(k, String(v)); }); return `?${params}`; }
 export const api = {
+  components: (q?: ListQuery) => request<ComponentPage>(`/components${query(q)}`),
+  component: (id: string) => request<HardwareComponent>(`/components/${encodeURIComponent(id)}`),
+  tools: () => request<ToolDefinition[]>('/tools'),
   servers: (q?: ListQuery) => request<Page<Server>>(`/servers${query(q)}`),
   server: (id: string) => request<Server>(`/servers/${encodeURIComponent(id)}`),
   scenarios: (q?: ListQuery) => request<Page<Scenario>>(`/scenarios${query(q)}`),

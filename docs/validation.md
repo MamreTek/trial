@@ -7,7 +7,7 @@ Validation date: 2026-11-03. Runtime: Node 22.22.1. Dependencies are fixed in th
 - `npm exec --yes --package=npm@10 -- npm ci`: passed.
 - `npm run typecheck`: passed.
 - `npm run lint`: passed without warnings.
-- `npm test -- --run`: 28 tests across 5 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation, HTTP envelopes/status codes, filtering/pagination, private-HTTP request identifiers, service recovery, form submission and report export payloads.
+- `npm test -- --run`: 52 tests across 7 files passed. Coverage includes target compatibility, scenario validation, immutable job snapshots, completion/cancellation/failure, HTTP envelopes/status codes, component filtering/pagination/capacity, private-HTTP request identifiers, service recovery, parameter/termination forms and report export payloads.
 - `npm run build`: passed with Mock disabled; this intentionally produces an explanatory screen and does not connect to any backend.
 - `VITE_ENABLE_MOCK=true npm run build`: passed; this is the artifact used for local browser review.
 
@@ -39,9 +39,19 @@ The UI was refined against central conventions 1.3 and the public Ant Design Pro
 - Loopback and the selected private-interface preview listeners were restarted after the environment interruption. Both returned HTTP 200, with no wildcard/public binding or firewall change. Startup and shutdown commands remain in the README.
 - Current browser discovery returned no enabled browser (`browsers: []`). The new selection → job → report browser walkthrough and refreshed 390px viewport check could not be repeated. The earlier browser checks above apply to the preceding prototype; component/API tests do not constitute new browser or physical-phone acceptance.
 
+## Component and parameterized-template expansion
+
+- Added synthetic CPU/memory/disk/network/GPU inventories with manufacturer/model, unit-bearing specs, sample metrics, compatibility and explicit measurement scope. Component queries, details, facets and tool schemas pass through the shared HTTP client/handlers.
+- Tool references and license/support boundaries are in [component-testing.md](component-testing.md). Tests reject AMD/ROCm as a gpu-burn target and prevent tasks for offline Memtest86+ and unverified CPU_SPEC_2007 templates. No third-party tool code, executable, installation or real target connection was introduced.
+- Parameter/termination validation covers unsupported keys/options/types/versions, numeric bounds and the overall rounds budget. Explicit components enforce ownership, type, online status, tool compatibility and memory/disk/link capacity. Legacy server-only requests select a deterministic compatible component.
+- Job/report/export checks preserve reference revisions, parameters, termination, component snapshots and completed rounds. Per-component data retains its measurement scope; first-component summary metrics are not represented as aggregate scores.
+- Failure/timeout harness outcomes affect one next successfully created job, remain terminal, and cannot produce a success report or be canceled again. Existing status, HTTP and backward-compatibility checks still pass.
+- UI tests cover model search and drawer specifications, switching CPU to memory without leaking old parameter keys, editing rounds while retaining memory parameters, and creating a component-specific job from the inventory handoff. Role/label queries are scoped to relevant controls; original assertions and 15-second case limits remain enabled. The full local suite passed in about 69 seconds.
+- Current browser discovery again returned no enabled browsers. Desktop/mobile visual review and a physical-phone walkthrough remain unverified for this expansion. Component/API checks are not browser acceptance; the earlier screenshots belong to the preceding prototype.
+
 ## Remaining limitations
 
 - `npm audit`: 11 moderate development-tool dependency findings, rooted in minimatch globparts amplification ([GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)); zero high or critical findings. The affected chain is ESLint/typescript-eslint tooling. The audit suggestions include incompatible major downgrades; no forced downgrade or cross-major dependency override was applied.
 - `npm audit --omit=dev`: zero findings at validation time.
-- The Mock-enabled build emits a size warning: its largest JavaScript chunk is about 1.15 MB uncompressed (370 kB gzip). Route/vendor splitting remains a later performance improvement; the warning was retained.
+- The Mock-enabled build emits a size warning: its largest JavaScript chunk is about 1.18 MB uncompressed (380 kB gzip). Route/vendor splitting remains a later performance improvement; the warning was retained.
 - Mock data is volatile, all metrics are synthetic, and no real execution, backend, persistence or authorization has been accepted. No production deployment or merge was performed.

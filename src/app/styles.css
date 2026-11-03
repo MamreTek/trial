@@ -54,6 +54,8 @@ body { margin: 0; }
 .query-form .ant-select { width: 160px; }
 .muted { color: rgba(0,0,0,.45); font-size: 12px; line-height: 1.8; }
 .mono { font-family: 'SFMono-Regular', Consolas, monospace; }
+.revision { overflow-wrap: anywhere; max-width: 440px; }
+.query-form { flex-wrap: wrap; column-gap: 0; }
 .dot { color: rgba(0,0,0,.25); }
 .table-link { height: auto !important; padding: 0 !important; font-weight: 400; }
 .form-columns { display: flex; width: 100%; gap: 16px; }

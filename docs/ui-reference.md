@@ -22,6 +22,8 @@ The user requested Ant Design Pro as the prototype UI baseline on 2026-11-03. Th
 
 The performance report retains its chart and accessible sample table because time-series metrics are part of Trial's business. Chart accents follow the shared primary color. No external branding, avatars, unrelated menus or demonstration records were copied. No authentication or permission features were added or removed.
 
+The later component/template expansion uses the same shell, labeled query panels, table toolbars and native forms. The longer template modal scrolls its body while keeping its actions reachable; component results retain tables and unit-bearing specifications. These are business additions, not a new visual direction. Current browser availability and actual verification are recorded separately in validation.md; no unobserved mobile or reference-page parity is claimed.
+
 ## Verification scope
 
 TypeScript, lint, existing behavior tests and both default/Mock builds are rerun for this change. Browser review covers desktop filtering/reset, scene creation/editing, job/report navigation, mobile navigation/query form/modal layout and the existing loopback/private preview addresses. Results and remaining general limitations are recorded in [validation.md](validation.md).
