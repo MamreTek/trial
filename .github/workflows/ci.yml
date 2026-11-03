@@ -1,0 +1,26 @@
+name: prototype-checks
+on:
+  pull_request:
+  push:
+    branches: ['issue/**']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm install --global npm@10
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --run
+      - run: npm run build
+      - name: Build the Mock-enabled review artifact
+        run: npm run build
+        env:
+          VITE_ENABLE_MOCK: 'true'
