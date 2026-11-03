@@ -44,6 +44,8 @@ The optional list filter is applied before keyword filtering, sorting and pagina
 
 ## Examples and transitions
 
+POST `/scenarios` body; omitted extension fields receive catalog defaults:
+
 ```json
 {"name":"GPU stability demo","testType":"stability","workload":"gpu","tool":"gpu-burn","durationMinutes":120,"concurrency":4,"intensityPercent":95}
 ```
@@ -51,6 +53,8 @@ The optional list filter is applied before keyword filtering, sorting and pagina
 ```json
 {"name":"GPU acceptance demo","scenarioId":"scn-003","serverIds":["srv-002"]}
 ```
+
+GET `/scenarios/scn-003` returns this normalized Scenario envelope (the preceding request illustrates a legacy server-only POST `/jobs` body):
 
 ```json
 {"data":{"id":"scn-003","name":"GPU 长稳测试","testType":"stability","workload":"gpu","tool":"gpu-burn","toolVersion":"source@0d19c94dcb2e9b6858b7586a4c327674cd67113b","parameters":{"gpuMemoryPercent":80,"precision":"fp32"},"termination":{"mode":"duration"},"durationMinutes":120,"concurrency":4,"intensityPercent":95,"updatedAt":"2026-11-03T07:10:00Z"},"requestId":"00000000-0000-4000-8000-000000000001"}

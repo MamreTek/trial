@@ -21,7 +21,7 @@ Scenarios separately configure test intent (stress, load or stability) and workl
 
 The **Components** page now lists synthetic CPU, memory, disk, network-interface and GPU parts, with manufacturer/model, unit-bearing specifications and clearly labeled sample metrics. Open a part's detail to configure its simulated task. **Scenarios and templates** support workload-specific parameters, a fixed reference tool revision, duration or rounds with an overall time limit. The **Tools** page records sources, licenses and compatibility. The Mock header can make the next created job fail or time out; failed jobs do not produce success reports. GPU-burn is modeled only for NVIDIA CUDA. Memtest86+ requires an offline workflow; CPU_SPEC_2007 stays an unverified draft pending the user's edition/license. Neither can create a runnable task.
 
-All new results retain their measurement scope: system memory and end-to-end network paths are not isolated DIMM/NIC scores. See [component-testing.md](docs/component-testing.md) for parameter bounds, compatibility, units, termination behavior and official research references. No stress-test software or third-party implementation code is installed or bundled.
+All new results retain their measurement scope: system memory and end-to-end network paths are not isolated DIMM/NIC scores. See [component-testing.md](docs/component-testing.md) for parameter bounds, compatibility, units, termination behavior and official research references. No stress-test tool code or binaries are copied, installed or bundled.
 
 ## Checks
 
